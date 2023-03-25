@@ -1,0 +1,22 @@
+#!/usr/bin/expect -f
+# This script is used to reboot a router via telnet.
+
+# uncomment the following if you need to see expect diagnostics on the console
+# exp_internal 1
+
+set timeout 15
+
+spawn telnet "${env(ROUTER_IP)}"
+expect "telnet account: "
+send -- "${env(ADMIN_USER)}\r"
+expect "telnet password: "
+send -- "${env(ADMIN_PASSWORD)}\r"
+expect -re "${env(EXPECT_REBOOT_PROMPT_REGEX)}"
+sleep 3
+set send_slow {10 .001}
+set send_human {.4 .4 .2 .5 100}
+send -s -- "reboot -d 5 -n &\r"
+expect -re "${env(EXPECT_REBOOT_PROMPT_REGEX)}"
+send -- "disown"
+expect -re "${env(EXPECT_REBOOT_PROMPT_REGEX)}"
+send -- "exit"
